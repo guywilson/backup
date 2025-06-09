@@ -32,14 +32,19 @@ SOURCE_DIRS=(
 )
 
 # Rsync options
-RSYNC_OPTS="-avhr --delete"
+RSYNC_OPTS="-avh --delete"
 
 # Iterate over each source directory
 for SRC in "${SOURCE_DIRS[@]}"; do
-  DEST="$BACKUP_DEST$SRC"
+  directory=$(dirname "$SRC")
+  filename=$(basename "$SRC")
+  
+  DEST="$BACKUP_DEST$directory"
 
+#  echo "Backup destination: $DEST"
+  
   echo "Backing up $SRC to $DEST"
-  rsync $RSYNC_OPTS "$SRC/" "$DEST/"
+  rsync $RSYNC_OPTS "$SRC" "$DEST"
 done
 
 echo "Backup complete."
