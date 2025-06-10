@@ -9,42 +9,28 @@ fi
 # Backup destination (e.g., /mnt/backup_drive)
 BACKUP_DEST="/Volumes/$1"
 
-mkdir -p "$BACKUP_DEST/Users/guy"
+CONFIG_FILE=".backup"
 
-# List of directories to back up
-SOURCE_DIRS=(
-  "/Users/guy/.ssh"
-  "/Users/guy/.gnupg"
-  "/Users/guy/.local"
-  "/Users/guy/.pfm"
-  "/Users/guy/.pico-sdk"
-  "/Users/guy/.viminfo"
-  "/Users/guy/.vscode"
-  "/Users/guy/.zprofile"
-  "/Users/guy/.zshrc"
-  "/Users/guy/Applications"
-  "/Users/guy/development"
-  "/Users/guy/playground"
-  "/Users/guy/keep"
-  "/usr"
-  "/Applications"
-  "/opt"
-)
+if [[ ! -f "$CONFIG_FILE" ]]; then
+    echo "Error: '$CONFIG_FILE' does not exist."
+    exit 1
+fi
+
+mkdir -p "$BACKUP_DEST/Users/guy"
 
 # Rsync options
 RSYNC_OPTS="-avh --delete"
 
-# Iterate over each source directory
-for SRC in "${SOURCE_DIRS[@]}"; do
-  directory=$(dirname "$SRC")
-  filename=$(basename "$SRC")
+while IFS= read -r file; do
+    directory=$(dirname "$file")
+    filename=$(basename "$file")
   
-  DEST="$BACKUP_DEST$directory"
+    DEST="$BACKUP_DEST$directory"
 
-#  echo "Backup destination: $DEST"
+  #  echo "Backup destination: $DEST"
   
-  echo "Backing up $SRC to $DEST"
-  rsync $RSYNC_OPTS "$SRC" "$DEST"
-done
+    echo "Backing up $file to $DEST"
+    rsync $RSYNC_OPTS "$file" "$DEST"
+done < "$CONFIG_FILE"
 
 echo "Backup complete."
